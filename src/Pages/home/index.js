@@ -1,58 +1,7 @@
 import { Component } from "react";
 import axios from "axios";
+import Card from "./card";
 import "./home.scss";
-
-const Card = ({ cardData, isModal, isHover }) => {
-  // const enableHover = index === dataLength - 1;
-  // let isHover = false;
-
-  // const onHover = () => {
-  //   isHover = !isHover;
-  //   console.log(isHover);
-  // };
-  // console.log(enableHover, isHover);
-  return (
-    <div className="content-card">
-      <img
-        className="content-img"
-        // onMouseEnter={() => {
-        //   if (enableHover) onHover();
-        // }}
-        // onMouseLeave={() => {
-        //   if (enableHover) onHover();
-        // }}
-        src={cardData.thumbnail.small}
-        alt={cardData.title}
-      />
-      {/* {isHover && (
-        <div>
-          <p>sjiasiajisj</p>
-          <p>Learn More</p>
-        </div>
-      )} */}
-      <div className="content-details">
-        {!isModal && (
-          <div className="border">
-            <p className="circle red"></p>
-            <p className="circle blue"></p>
-          </div>
-        )}
-        <p className="title">{cardData.title}</p>
-        <p className="content">{cardData.content}</p>
-        {isModal ? (
-          <div></div>
-        ) : (
-          <div className="author-details">
-            <p className="author-role">
-              {cardData.author.name} - {cardData.author.role}
-            </p>
-            <p>{new Date(cardData.date).toDateString()}</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
 class Home extends Component {
   constructor() {
@@ -60,7 +9,6 @@ class Home extends Component {
     this.state = {
       data: {},
       isModalOpen: false,
-      isHover: false,
     };
   }
 
@@ -75,24 +23,38 @@ class Home extends Component {
       });
   }
 
-  onHover = () => {
-    const { isHover } = this.state;
-    this.setState({ isHover: !isHover });
+  toggleModal = () => {
+    this.setState({ isModalOpen: !this.state.isModalOpen });
   };
 
   render() {
     const { data = {}, isModalOpen } = this.state;
+    const dataLength = Object.keys(data).length;
 
     return (
-      <div className="home">
-        {Object.keys(data).length > 0 &&
-          data?.map((cardData, index) => {
-            return (
-              <div className="author-work" key={data.id}>
-                <Card cardData={cardData} isModal={isModalOpen} enableHover={index === Object.keys(data).length - 1} />
+      <div className={`home ${isModalOpen ? "disable-scroll" : ""}`}>
+        <div className="card-container">
+          {dataLength > 0 &&
+            data?.map((cardData, index) => {
+              return (
+                <div className="author-work" key={cardData.id}>
+                  <Card cardData={cardData} isCard={true} addHover={index === dataLength - 1} openModal={this.toggleModal} />
+                </div>
+              );
+            })}
+        </div>
+        {isModalOpen && (
+          <div className="modal">
+            <div className="modal-content">
+              <div className="modal-header">
+                <p className="close-icon" onClick={this.toggleModal}>
+                  X
+                </p>
               </div>
-            );
-          })}
+              <Card cardData={data[dataLength - 1]} isCard={false} />
+            </div>
+          </div>
+        )}
       </div>
     );
   }
